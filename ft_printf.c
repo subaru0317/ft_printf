@@ -6,153 +6,11 @@
 /*   By: smihata <smihata@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 11:57:39 by smihata           #+#    #+#             */
-/*   Updated: 2023/04/19 18:32:12 by smihata          ###   ########.fr       */
+/*   Updated: 2023/04/22 16:00:12 by smihata          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libftprintf.h"
-
-void	ft_putchar_fd(char c, int fd)
-{
-	write(fd, &c, 1);
-	return ;
-}
-
-void	ft_putchar_fd_num(char c, int fd, long long num)
-{
-	size_t	i;
-
-	if (num > 0)
-	{
-		i = 0;
-		while (i < num)
-		{
-			write(fd, &c, 1);
-			i++;
-		}
-	}
-}
-
-int	ft_isdigit(int c)
-{
-	if ('0' <= c && c <= '9')
-		return (1);
-	return (0);
-}
-
-size_t	ft_strlen(const char *s)
-{
-	size_t	len;
-
-	len = 0;
-	while (*s++ != '\0')
-		len++;
-	return (len);
-}
-
-int	ft_toupper(int c)
-{
-	if ('a' <= c && c <= 'z')
-		return (c - 32);
-	return (c);
-}
-
-void ft_str_toupper(char **c)
-{
-	size_t	i;
-	size_t	len;
-
-	i = 0;
-	len = ft_strlen(c[0]);
-	while (i < len)
-	{
-		c[0][i] = ft_toupper(c[0][i]);
-		i++;
-	}
-}
-
-void	ft_putstr_fd(char *s, int fd)
-{
-	size_t	i;
-
-	if (!s)
-		return ;
-	i = 0;
-	while (s[i])
-	{
-		ft_putchar_fd(s[i], fd);
-		i++;
-	}
-}
-
-size_t	ft_min(long long x, long long y)
-{
-	if (x > y)
-		return (y);
-	else
-		return (x);
-}
-
-size_t	ft_max(long long x, long long y)
-{
-	if (x > y)
-		return (x);
-	else
-		return (y);
-}
-
-static unsigned long long ft_abs(long long n)
-{
-	if (n < 0)
-		return (-n);
-	else
-		return (n);
-}
-
-void	ft_putnbr_fd(long long n, int fd)
-{
-	unsigned long long	plus_n;
-	char				c[20];
-	size_t				len;
-
-	if (n < 0)
-		ft_putchar_fd('-', fd);
-	plus_n = ft_abs(n);
-	len = 0;
-	while (1)
-	{
-		c[len++] = plus_n % 10 + '0';
-		plus_n /= 10;
-		if (plus_n == 0)
-			break ;
-	}
-	while (len--)
-		ft_putchar_fd(c[len], fd);
-}
-
-
-static size_t	ft_num_len(long long n)
-{
-	size_t			len;
-	unsigned int	plus_n;
-
-	len = 0;
-	if (n < 0)
-	{
-		plus_n = n * -1;
-		len++;
-	}
-	else
-		plus_n = n;
-	while (1)
-	{
-		len++;
-		plus_n /= 10;
-		if (plus_n == 0)
-			break ;
-	}
-	return (len);
-}
 
 size_t	set_flag(const char *fmt, flag_list *flags)
 {
@@ -556,6 +414,33 @@ size_t	stdout_according_to_type(va_list *ap, char type, flag_list flags, field_i
 		read_percent(ap, flags, field);
 	else
 		ft_putchar_fd(type, 1); // あってるか？存在しない場合はそのまま文字として出力？
+	if (type)
+		return (1);
+	else
+		return (0);
+}
+
+size_t	type_length(va_list *ap, char type, flag_list flags, field_info field)
+{
+	size_t	len;
+
+	// len = 0;
+	// if (type == 'c')
+	// 	return (ft_max(field.width, 1));
+	// else if (type == 's')
+	// else if (type == 'p')
+	// {
+	// 	return (ft_max(field.width, 1));
+	// }
+	// else if (type == 'd' || type == 'i')
+	// else if (type == 'u')
+	// else if (type == 'x')
+	// else if (type == 'X')
+	// 	// return ();
+	// else if (type == '%')
+	// 	return (ft_max(field.width, 1));
+	// else
+		return (1);
 }
 
 size_t	do_printf(va_list *ap, const char *fmt)
@@ -579,7 +464,7 @@ size_t	do_printf(va_list *ap, const char *fmt)
 		fmt += set_flag(fmt, &flags);
 		fmt += set_min_field_width(ap, fmt, &flags, &field);
 		fmt += set_precision(ap, fmt, &field);
-		len += type_length(*fmt, flags, field); // 未実装
+		len += type_length(ap, *fmt, flags, field); // 未実装
 		fmt += stdout_according_to_type(ap, *fmt, flags, field);
 	}
 	return (len);
@@ -596,10 +481,7 @@ int	ft_printf(const char *fmt, ...)
 	return (len);
 }
 
-// #include <stdio.h>
-// #include <limits.h>
 // int main(void)
 // {
-// 	ft_printf("%.*s", -3, "hello");
-
+// 	ft_printf("%u", -8000);
 // }
