@@ -6,7 +6,7 @@
 /*   By: smihata <smihata@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/08 11:57:39 by smihata           #+#    #+#             */
-/*   Updated: 2023/04/22 16:00:12 by smihata          ###   ########.fr       */
+/*   Updated: 2023/04/22 17:52:12 by smihata          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ size_t	dec_to_hex_return_hex_len(unsigned long long dec, char **hex)
 	return (len);
 }
 
-void	read_pointer(va_list *ap, flag_list flags, field_info field)
+int	read_pointer(va_list *ap, flag_list flags, field_info field)
 {
 	unsigned long long	p;
 	char		*c;
@@ -137,6 +137,8 @@ void	read_pointer(va_list *ap, flag_list flags, field_info field)
 
 	p = va_arg(*ap, unsigned long long);
 	c = malloc(sizeof(char) * 100);
+	if (!c)
+		return (-1);
 	len = dec_to_hex_return_hex_len(p, &c);
 	c[len] = '\0';
 	if (flags.minus)
@@ -153,10 +155,12 @@ void	read_pointer(va_list *ap, flag_list flags, field_info field)
 		while (len--)
 			ft_putchar_fd(c[len], 1);
 	}
+	len = ft_strlen(c);
 	free(c);
+	return (ft_max(field.width, len + 2));
 }
 
-void	read_char(va_list *ap, flag_list flags, field_info field)
+int	read_char(va_list *ap, flag_list flags, field_info field)
 {
 	char		c;
 	long long	space_num;
@@ -173,12 +177,14 @@ void	read_char(va_list *ap, flag_list flags, field_info field)
 		ft_putchar_fd_num(' ', 1, space_num);
 		ft_putchar_fd(c, 1);
 	}
+	return (ft_max(field.width, 1));
 }
 
-void	read_string(va_list *ap, flag_list flags, field_info field)
+int	read_string(va_list *ap, flag_list flags, field_info field)
 {
 	char		*s;
 	size_t		s_len;
+	int			return_value;
 	char		padding_char;
 	long long	padding_num;
 
@@ -186,6 +192,7 @@ void	read_string(va_list *ap, flag_list flags, field_info field)
 	if (!s)
 		s = "(null)"; 
 	s_len = ft_strlen(s);
+	return_value = s_len;
 	if (field.precision_flag)
 		s_len = ft_min(s_len, field.precision);
 	padding_char = ' ';
@@ -204,9 +211,10 @@ void	read_string(va_list *ap, flag_list flags, field_info field)
 		while (s_len-- > 0)
 			ft_putchar_fd(*s++, 1);
 	}
+	return (ft_max(field.width, return_value));
 }
 
-void read_int(va_list *ap, flag_list flags, field_info field)
+size_t read_int(va_list *ap, flag_list flags, field_info field)
 {
 	long long	space_num;
 	long long	zero_num;
@@ -252,9 +260,10 @@ void read_int(va_list *ap, flag_list flags, field_info field)
 		if (!(field.precision_flag && field.precision == 0 && x == 0))
 			ft_putnbr_fd(x, 1);
 	}
+	return (ft_max(ft_max(field.width, field.precision + (flags.plus || flags.space || negative)), ft_num_len(x) + (flags.plus || flags.space || negative)));
 }
 
-void	read_lower_hex_number(va_list *ap, flag_list flags, field_info field)
+int	read_lower_hex_number(va_list *ap, flag_list flags, field_info field)
 {
 	unsigned int	x;
 	char			*c;
@@ -266,6 +275,8 @@ void	read_lower_hex_number(va_list *ap, flag_list flags, field_info field)
 	if (flags.sharp && x != 0)
 		ft_putstr_fd("0x", 1);
 	c = malloc(sizeof(char) * 100);
+	if (!c)
+		return (-1);
 	len = dec_to_hex_return_hex_len(x, &c);
 	c[len] = '\0';
 	space_num = ft_max(0, field.width - ft_max(field.precision, len));
@@ -291,10 +302,12 @@ void	read_lower_hex_number(va_list *ap, flag_list flags, field_info field)
 			while (len--)
 				ft_putchar_fd(c[len], 1);
 	}
+	len = ft_strlen(c);
 	free(c);
+	return (ft_max(ft_max(field.width, field.precision), len));
 }
 
-void	read_upper_hex_number(va_list *ap, flag_list flags, field_info field)
+int	read_upper_hex_number(va_list *ap, flag_list flags, field_info field)
 {
 	unsigned int	x;
 	char			*c;
@@ -306,6 +319,8 @@ void	read_upper_hex_number(va_list *ap, flag_list flags, field_info field)
 	if (flags.sharp && x != 0)
 		ft_putstr_fd("0X", 1);
 	c = malloc(sizeof(char) * 100);
+	if (!c)
+		return (-1);
 	len = dec_to_hex_return_hex_len(x, &c);
 	ft_str_toupper(&c);
 	c[len] = '\0';
@@ -332,10 +347,12 @@ void	read_upper_hex_number(va_list *ap, flag_list flags, field_info field)
 			while (len--)
 				ft_putchar_fd(c[len], 1);
 	}
+	len = ft_strlen(c);
 	free(c);
+	return (ft_max(ft_max(field.width, field.precision), len));
 }
 
-void	read_percent(va_list *ap, flag_list flags, field_info field)
+int read_percent(va_list *ap, flag_list flags, field_info field)
 {
 	long long	padding_num;
 
@@ -355,9 +372,10 @@ void	read_percent(va_list *ap, flag_list flags, field_info field)
 		ft_putchar_fd_num(' ', 1, padding_num);
 		ft_putchar_fd('%', 1);
 	}
+	return (ft_max(field.width, 1)); 
 }
 
-void read_unsigned_int(va_list *ap, flag_list flags, field_info field)
+int read_unsigned_int(va_list *ap, flag_list flags, field_info field)
 {
 	long long		space_num;
 	long long		zero_num;
@@ -392,26 +410,27 @@ void read_unsigned_int(va_list *ap, flag_list flags, field_info field)
 		if (!(field.precision_flag && field.precision == 0 && x == 0))
 			ft_putnbr_fd(x, 1);
 	}
+	return (ft_max(ft_max(field.width, field.precision), ft_num_len(x)));
 }
 
-size_t	stdout_according_to_type(va_list *ap, char type, flag_list flags, field_info field)
+int	stdout_according_to_type(va_list *ap, char type, flag_list flags, field_info field)
 {
 	if (type == 'c')
-		read_char(ap, flags, field);
+		return (read_char(ap, flags, field));
 	else if (type == 's')
-		read_string(ap, flags, field);
+		return (read_string(ap, flags, field));
 	else if (type == 'p')
-		read_pointer(ap, flags, field);
+		return (read_pointer(ap, flags, field));
 	else if (type == 'd' || type == 'i')
-		read_int(ap, flags, field);
+		return (read_int(ap, flags, field));
 	else if (type == 'u')
-		read_unsigned_int(ap, flags, field);
+		return (read_unsigned_int(ap, flags, field));
 	else if (type == 'x')
-		read_lower_hex_number(ap, flags, field);
+		return (read_lower_hex_number(ap, flags, field));
 	else if (type == 'X')
-		read_upper_hex_number(ap, flags, field);
+		return (read_upper_hex_number(ap, flags, field));
 	else if (type == '%')
-		read_percent(ap, flags, field);
+		return (read_percent(ap, flags, field));
 	else
 		ft_putchar_fd(type, 1); // あってるか？存在しない場合はそのまま文字として出力？
 	if (type)
@@ -420,32 +439,10 @@ size_t	stdout_according_to_type(va_list *ap, char type, flag_list flags, field_i
 		return (0);
 }
 
-size_t	type_length(va_list *ap, char type, flag_list flags, field_info field)
+int	do_printf(va_list *ap, const char *fmt)
 {
 	size_t	len;
-
-	// len = 0;
-	// if (type == 'c')
-	// 	return (ft_max(field.width, 1));
-	// else if (type == 's')
-	// else if (type == 'p')
-	// {
-	// 	return (ft_max(field.width, 1));
-	// }
-	// else if (type == 'd' || type == 'i')
-	// else if (type == 'u')
-	// else if (type == 'x')
-	// else if (type == 'X')
-	// 	// return ();
-	// else if (type == '%')
-	// 	return (ft_max(field.width, 1));
-	// else
-		return (1);
-}
-
-size_t	do_printf(va_list *ap, const char *fmt)
-{
-	size_t	len;
+	int		tmp;
 
 	len = 0;
 	while (*fmt)
@@ -464,8 +461,12 @@ size_t	do_printf(va_list *ap, const char *fmt)
 		fmt += set_flag(fmt, &flags);
 		fmt += set_min_field_width(ap, fmt, &flags, &field);
 		fmt += set_precision(ap, fmt, &field);
-		len += type_length(ap, *fmt, flags, field); // 未実装
-		fmt += stdout_according_to_type(ap, *fmt, flags, field);
+		tmp = stdout_according_to_type(ap, *fmt, flags, field);
+		if (tmp == -1)
+			return (-1);
+		len += tmp;
+		if (*fmt)
+			fmt++;
 	}
 	return (len);
 }
@@ -481,7 +482,23 @@ int	ft_printf(const char *fmt, ...)
 	return (len);
 }
 
+// #include <stdio.h>
 // int main(void)
 // {
-// 	ft_printf("%u", -8000);
+//     printf("1:ret = %d\n", printf("[%010d]\n", -8473));
+//     printf("2:ret = %d\n", printf("[%10d]\n", -8473));
+//     printf("3:ret = %d\n", printf("[%.5d]\n", -8473));
+//     printf("4:ret = %d\n", printf("[%01.1d]\n", -8473));
+//     printf("5:ret = %d\n", printf("[%010.1d]\n", -8473));
+//     printf("6:ret = %d\n", printf("[%01.50d]\n", -8473));
+//     printf("7:ret = %d\n", printf("[%1.50d]\n", -8473));
+//     printf("8:ret = %d\n", printf("[%0100.50d]\n", -8473));
+//     printf("9:ret = %d\n", printf("[%010d]\n", 8473));
+//     printf("10:ret = %d\n", printf("[%10d]\n", 8473));
+//     printf("11:ret = %d\n", printf("[%.5d]\n", 8473)); // Error
+//     printf("12:ret = %d\n", printf("[%01.1d]\n", 8473));
+//     printf("13:ret = %d\n", printf("[%010.1d]\n", 8473));
+//     printf("14:ret = %d\n", printf("[%01.50d]\n", 8473));
+//     printf("15:ret = %d\n", printf("[%1.50d]\n", 8473));
+//     printf("16:ret = %d\n", printf("[%0100.50d]\n", 8473));
 // }
