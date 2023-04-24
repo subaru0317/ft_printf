@@ -6,7 +6,7 @@
 /*   By: smihata <smihata@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/22 18:32:55 by smihata           #+#    #+#             */
-/*   Updated: 2023/04/24 17:13:10 by smihata          ###   ########.fr       */
+/*   Updated: 2023/04/24 18:51:29 by smihata          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,19 @@ static long long	set_spaces(size_t sign, t_field field, long long x)
 	return (spaces);
 }
 
-static void	ft_put_prefix(t_flag flags)
+static long long	ft_set_x(char type, va_list *ap, t_flag *flags)
 {
-	if (flags.plus)
-		ft_putchar_fd('+', 1);
-	else if (flags.space)
-		ft_putchar_fd(' ', 1);
+	long long	x;
+
+	if (type == 'i' || type == 'd')
+		x = va_arg(*ap, int);
+	else
+	{
+		x = va_arg(*ap, unsigned int);
+		flags->space = 0;
+		flags->plus = 0;
+	}
+	return (x);
 }
 
 int	read_int(va_list *ap, char type, t_flag flags, t_field field)
@@ -64,14 +71,14 @@ int	read_int(va_list *ap, char type, t_flag flags, t_field field)
 	long long	x;
 	size_t		sign;
 
-	if (type == 'i' || type == 'd')
-		x = va_arg(*ap, int);
-	else
-		x = va_arg(*ap, unsigned int);
+	x = ft_set_x(type, ap, &flags);
 	sign = (flags.plus || flags.space || x < 0);
 	spaces = set_spaces(sign, field, x);
 	zeros = ft_max(0, field.prec + sign - ft_num_len(x));
-	ft_put_prefix(flags);
+	if (flags.plus)
+		ft_putchar_fd('+', 1);
+	else if (flags.space)
+		ft_putchar_fd(' ', 1);
 	if (flags.minus)
 		left_justified(zeros, spaces, field, x);
 	else
