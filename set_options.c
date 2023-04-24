@@ -6,7 +6,7 @@
 /*   By: smihata <smihata@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/22 20:29:23 by smihata           #+#    #+#             */
-/*   Updated: 2023/04/24 15:07:24 by smihata          ###   ########.fr       */
+/*   Updated: 2023/04/24 19:08:41 by smihata          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,3 +89,4 @@ size_t	set_precision(va_list *ap, const char *fmt, t_field *field)
 	}
 	return (i);
 }
+a
