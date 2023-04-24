@@ -1,11 +1,10 @@
 NAME	=	libftprintf.a
 CC		=	cc
-# CFLAGS	=	-Wall -Wextra -Werror
+CFLAGS	=	-Wall -Wextra -Werror
 SRCDIR	=	./
-SRCNAME	=	ft_printf.c libft_extend_utils.c math_utils.c
+SRCNAME	=	ft_printf.c libft_extend_utils.c math_utils.c read_pointer.c read_int.c read_literal.c set_options.c read_hex_num.c
 SRCS	=	${addprefix ${SRCDIR}, ${SRCNAME}}
 OBJS	=	${SRCS:.c=.o}
-INCLUDES = ./inlcudes/libft.a
 
 .c.o:
 			${CC} ${CFLAGS} -c $< -o ${<:.c=.o}

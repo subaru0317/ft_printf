@@ -6,7 +6,7 @@
 /*   By: smihata <smihata@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/22 13:34:40 by smihata           #+#    #+#             */
-/*   Updated: 2023/04/22 17:44:28 by smihata          ###   ########.fr       */
+/*   Updated: 2023/04/22 18:08:49 by smihata          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ size_t	ft_max(long long x, long long y)
 		return (y);
 }
 
-unsigned long long ft_abs(long long n)
+unsigned long long	ft_abs(long long n)
 {
 	if (n < 0)
 		return (-n);

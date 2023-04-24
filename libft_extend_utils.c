@@ -6,7 +6,7 @@
 /*   By: smihata <smihata@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/22 13:32:27 by smihata           #+#    #+#             */
-/*   Updated: 2023/04/22 15:32:40 by smihata          ###   ########.fr       */
+/*   Updated: 2023/04/24 15:25:35 by smihata          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	ft_putchar_fd_num(char c, int fd, long long num)
 {
-	size_t	i;
+	long long	i;
 
 	if (num > 0)
 	{
@@ -24,20 +24,6 @@ void	ft_putchar_fd_num(char c, int fd, long long num)
 			write(fd, &c, 1);
 			i++;
 		}
-	}
-}
-
-void ft_str_toupper(char **c)
-{
-	size_t	i;
-	size_t	len;
-
-	i = 0;
-	len = ft_strlen(c[0]);
-	while (i < len)
-	{
-		c[0][i] = ft_toupper(c[0][i]);
-		i++;
 	}
 }
 
@@ -60,6 +46,35 @@ size_t	ft_num_len(long long n)
 		plus_n /= 10;
 		if (plus_n == 0)
 			break ;
+	}
+	return (len);
+}
+
+size_t	dec_to_hex_return_hex_len(unsigned long long dec, char **hex)
+{
+	unsigned long long	tmp;
+	size_t				len;
+
+	len = 0;
+	while (1)
+	{
+		tmp = dec % 16;
+		dec /= 16;
+		if (0 <= tmp && tmp <= 9)
+			tmp += '0';
+		else if (10 <= tmp && tmp <= 15)
+			tmp += 87;
+		else
+		{
+			hex[0][len] = '\0';
+			break ;
+		}
+		hex[0][len++] = tmp;
+		if (dec == 0)
+		{
+			hex[0][len] = '\0';
+			break ;
+		}
 	}
 	return (len);
 }
