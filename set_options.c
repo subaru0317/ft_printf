@@ -6,17 +6,17 @@
 /*   By: smihata <smihata@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/22 20:29:23 by smihata           #+#    #+#             */
-/*   Updated: 2023/04/24 19:09:14 by smihata          ###   ########.fr       */
+/*   Updated: 2023/05/05 18:39:45 by smihata          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libftprintf.h"
 
-size_t	set_flag(const char *fmt, t_flag *flags)
+int	set_flag(const char *fmt, t_flag *flags)
 {
-	size_t	length;
+	int	len;
 
-	length = 0;
+	len = 0;
 	while (1)
 	{
 		if (*fmt == '#')
@@ -32,60 +32,79 @@ size_t	set_flag(const char *fmt, t_flag *flags)
 		else
 			break ;
 		fmt++;
-		length++;
+		len++;
 	}
-	return (length);
+	return (len);
 }
 
-size_t	set_min_field_width(va_list *ap, const char *fmt,
+int	set_min_field_width(va_list *ap, const char *fmt,
 					t_flag *flags, t_field *field)
 {
-	size_t	i;
-	int		x;
+	int	i;
+	int	target;
 
 	i = 0;
 	if (ft_isdigit(fmt[i]))
 	{
-		while (ft_isdigit(fmt[i]))
+		while (ft_isdigit((int)fmt[i]))
 			field->width = field->width * 10 + (fmt[i++] - '0');
 	}
 	else if (fmt[i] == '*')
 	{
-		x = va_arg(*ap, int);
-		if (x < 0)
+		target = va_arg(*ap, int);
+		if (target < 0)
 		{
-			x *= -1;
+			target *= -1;
 			flags->minus = 1;
 		}
-		field->width = x;
+		field->width = target;
 		i++;
 	}
 	return (i);
 }
 
-size_t	set_precision(va_list *ap, const char *fmt, t_field *field)
+int	set_precision(va_list *ap, const char *fmt, t_field *field)
 {
-	size_t	i;
-	int		x;
+	int	i;
+	int	target;
 
 	i = 0;
 	if (fmt[i] == '.')
 	{
 		field->prec_flag = 1;
 		i++;
-		if (ft_isdigit(fmt[i]))
+		if (ft_isdigit((int)fmt[i]))
 		{
-			while (ft_isdigit(fmt[i]))
+			while (ft_isdigit((int)fmt[i]))
 				field->prec = field->prec * 10 + (fmt[i++] - '0');
 		}
 		else if (fmt[i] == '*')
 		{
-			x = va_arg(*ap, int);
-			if (x < 0)
+			target = va_arg(*ap, int);
+			if (target < 0)
 				field->prec_flag = 0;
-			field->prec = x;
+			field->prec = target;
 			i++;
 		}
 	}
 	return (i);
+}
+
+int	set_directive(va_list *ap, const char *fmt,
+						t_flag *flags, t_field *field)
+{
+	int	directive_strlen;
+	int	tmp;
+
+	directive_strlen = 0;
+	tmp = set_flag(fmt, flags);
+	fmt += tmp;
+	directive_strlen += tmp;
+	tmp = set_min_field_width(ap, fmt, flags, field);
+	fmt += tmp;
+	directive_strlen += tmp;
+	tmp = set_precision(ap, fmt, field);
+	fmt += tmp;
+	directive_strlen += tmp;
+	return (directive_strlen);
 }

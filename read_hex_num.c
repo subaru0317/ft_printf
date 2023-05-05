@@ -6,91 +6,85 @@
 /*   By: smihata <smihata@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/24 15:08:54 by smihata           #+#    #+#             */
-/*   Updated: 2023/04/24 16:04:49 by smihata          ###   ########.fr       */
+/*   Updated: 2023/05/05 17:14:52 by smihata          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libftprintf.h"
 
-static void	ft_str_toupper(char **c)
+static void	ft_put_prefix_fd(char type, int fd)
 {
-	size_t	i;
-	size_t	len;
-
-	i = 0;
-	len = ft_strlen(c[0]);
-	while (i < len)
-	{
-		c[0][i] = ft_toupper(c[0][i]);
-		i++;
-	}
+	if (type == 'x')
+		ft_putstr_fd("0x", fd);
+	else if (type == 'X')
+		ft_putstr_fd("0X", fd);
 }
 
-static void	ft_put_prefix_fd(unsigned int x, t_flag flags, char type, int fd)
+static void	left_justified(int zeros, int spaces, char *hex_str)
 {
-	if (flags.sharp && x != 0)
-	{
-		if (type == 'x')
-			ft_putstr_fd("0x", fd);
-		else if (type == 'X')
-			ft_putstr_fd("0X", fd);
-	}
+	ft_putchar_fd_num('0', 1, zeros);
+	ft_put_nbr(hex_str);
+	ft_putchar_fd_num(' ', 1, spaces);
 }
 
-static void	ft_put_hex_num(t_field field, unsigned int x, char *c)
+static void	right_justified(int zeros, int spaces, char *hex_str)
 {
-	size_t	len;
-
-	len = ft_strlen(c);
-	if (!(field.prec_flag && field.prec == 0 && x == 0))
-		while (len--)
-			ft_putchar_fd(c[len], 1);
+	ft_putchar_fd_num(' ', 1, spaces);
+	ft_putchar_fd_num('0', 1, zeros);
+	ft_put_nbr(hex_str);
 }
 
-static void	ft_put(t_flag flags, t_field field, char *c, unsigned int x)
+static int	ft_put_hex_nbr(t_flag flags, t_field field,
+							char *hex_str, unsigned int target)
 {
-	size_t	spaces;
-	size_t	zeros;
-	size_t	len;
+	int	spaces;
+	int	zeros;
+	int	hex_len;
 
-	len = ft_strlen(c);
-	spaces = ft_max(0, field.width - ft_max(field.prec, len));
-	zeros = ft_max(0, field.prec - len);
-	if (field.prec_flag && field.prec == 0 && x == 0 && field.width != 0)
-		spaces++;
-	if (flags.minus)
+	hex_len = (int)ft_strlen(hex_str);
+	spaces = ft_max(0, field.width - ft_max(field.prec, hex_len));
+	zeros = ft_max(0, field.prec - hex_len);
+	if (field.prec_flag && field.prec == 0 && target == 0)
 	{
-		ft_putchar_fd_num('0', 1, zeros);
-		ft_put_hex_num(field, x, c);
-		ft_putchar_fd_num(' ', 1, spaces);
+		ft_putchar_fd_num(' ', 1, zeros + spaces + (field.width != 0));
+		return (zeros + spaces + (field.width != 0));
 	}
+	else if (flags.minus)
+		left_justified(zeros, spaces, hex_str);
 	else
 	{
-		if (flags.zero && !field.prec)
+		if (flags.zero)
+		{
 			zeros += spaces;
-		else
-			ft_putchar_fd_num(' ', 1, spaces);
-		ft_putchar_fd_num('0', 1, zeros);
-		ft_put_hex_num(field, x, c);
+			spaces = 0;
+		}
+		right_justified(zeros, spaces, hex_str);
 	}
+	return (zeros + spaces + ft_strlen(hex_str));
 }
 
 int	read_hex_num(va_list *ap, char type, t_flag flags, t_field field)
 {
-	unsigned int	x;
-	char			*c;
-	size_t			len;
+	unsigned int	target;
+	char			*hex_str;
+	int				hex_len;
 
-	x = va_arg(*ap, unsigned int);
-	ft_put_prefix_fd(x, flags, type, 1);
-	c = malloc(sizeof(char) * 100);
-	if (!c)
+	target = va_arg(*ap, unsigned int);
+	hex_len = 0;
+	if (field.prec_flag)
+		flags.zero = 0;
+	if (flags.sharp && target != 0)
+	{
+		ft_put_prefix_fd(type, 1);
+		hex_len += 2;
+	}
+	hex_str = malloc(sizeof(char) * 100);
+	if (!hex_str)
 		return (-1);
-	len = dec_to_hex_return_hex_len(x, &c);
+	dec_nbr_to_hex_str(target, &hex_str);
 	if (type == 'X')
-		ft_str_toupper(&c);
-	c[len] = '\0';
-	ft_put(flags, field, c, x);
-	free(c);
-	return (ft_max(ft_max(field.width, field.prec), len));
+		ft_str_toupper(&hex_str);
+	hex_len += ft_put_hex_nbr(flags, field, hex_str, target);
+	free(hex_str);
+	return (hex_len);
 }

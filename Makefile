@@ -2,7 +2,7 @@ NAME	=	libftprintf.a
 CC		=	cc
 CFLAGS	=	-Wall -Wextra -Werror
 SRCDIR	=	./
-SRCNAME	=	ft_printf.c libft_extend_utils.c math_utils.c read_pointer.c read_int.c read_literal.c set_options.c read_hex_num.c
+SRCNAME	=	ft_printf.c libft_extend_utils.c math_utils.c read_pointer.c read_int.c read_uint.c read_literal.c set_options.c read_hex_num_utils.c read_hex_num.c
 SRCS	=	${addprefix ${SRCDIR}, ${SRCNAME}}
 OBJS	=	${SRCS:.c=.o}
 
@@ -13,6 +13,8 @@ ${NAME}:	${OBJS}
 			${MAKE} -C ./libft
 			cp libft/libft.a ${NAME}
 			ar rcs ${NAME} ${OBJS}
+
+bonus:		${NAME}
 
 all:		${NAME}
 
@@ -26,4 +28,4 @@ fclean:		clean
 
 re:			fclean all
 
-.PHONY:	all clean fclean re
+.PHONY:	all clean fclean re bonus

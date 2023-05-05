@@ -21,8 +21,6 @@ endif
 ${NAME}:	${OBJS}
 			ar	rc	${NAME}	${OBJS}
 
-#bonus:
-#			make WITH_BONUS=1
 bonus:
 			make WITH_BONUS=1
 
